@@ -230,13 +230,20 @@ class SchemaExtractionPrompts:
     "xpath": "//h1[@class='article-title']/text()",
     "visual_features": "位于页面上部中央区域，字体非常大且加粗..."
   }},
-  // 其他字段
+  "author": {{
+    "type": "string",
+    "description": "作者姓名",
+    "value_sample": "张三",
+    "xpath": "//div[@class='author']/text()",
+    "visual_features": "位于标题下方，字体较小"
+  }}
 }}
 ```
 
 ## 注意事项
 
-- 输出必须是完整的、可用的JSON格式
+- **输出必须是标准的、可解析的JSON格式**
+- **不要在JSON中包含任何注释（如 // 或 /* */）**
 - 每个字段应该包含type、description、value_sample、xpath、visual_features（如果有）
 - 对于只在一个Schema中出现的字段，尽可能保留其信息
 """
@@ -314,8 +321,7 @@ class SchemaExtractionPrompts:
       "//ul[@class='comments']//li"
     ],
     "visual_features": "位于正文下方，多个评论项垂直排列..."
-  }},
-  // 其他字段
+  }}
 }}
 ```
 
@@ -325,5 +331,6 @@ class SchemaExtractionPrompts:
 2. **type修正**：确保列表字段（如评论、标签等）的type为array
 3. **结构合理**：字段的层级关系要合理，元信息归属正确
 4. **输出完整**：必须是完整的、可解析的JSON格式
-5. **保持核心字段**：即使某个字段只在部分Schema中出现，如果它是核心字段（如标题、内容等），也要保留
+5. **不要在JSON中包含任何注释**：禁止使用 // 或 /* */ 等注释符号
+6. **保持核心字段**：即使某个字段只在部分Schema中出现，如果它是核心字段（如标题、内容等），也要保留
 """
