@@ -191,11 +191,15 @@ class LLMClient:
             input_tokens: 输入 token 数
             completion_tokens: 输出 token 数
         """
+        # 处理None值（某些API可能返回None）
+        input_tokens = input_tokens or 0
+        completion_tokens = completion_tokens or 0
+
         # 更新全局统计
         LLMClient._global_total_input_tokens += input_tokens
         LLMClient._global_total_completion_tokens += completion_tokens
         LLMClient._global_total_tokens = (
-            LLMClient._global_total_input_tokens + 
+            LLMClient._global_total_input_tokens +
             LLMClient._global_total_completion_tokens
         )
         LLMClient._global_request_count += 1
@@ -254,7 +258,28 @@ class LLMClient:
                 
                 self.update_token_count(input_tokens, completion_tokens)
             
-            return response.content
+            # 检测是否返回了HTML错误页面（WAF拦截等）
+            content = response.content.strip()
+            if content.startswith('<!DOCTYPE html') or content.startswith('<html'):
+                # 提取错误信息
+                if '阻断' in content or 'WAF' in content or '405' in content:
+                    error_msg = (
+                        "API请求被WAF（Web Application Firewall）拦截。\n"
+                        "原因：请求体中的HTML内容被误判为安全威胁。\n\n"
+                        "解决方案：\n"
+                        "1. 使用不同的API提供商（推荐切换回Claude或OpenAI）\n"
+                        "2. 联系书生API技术支持，申请白名单\n"
+                        "3. 减少HTML简化级别（修改HTML_SIMPLIFY_MODE配置）\n\n"
+                        "详细错误已保存到日志文件"
+                    )
+                    logger.error(error_msg)
+                    logger.debug(f"HTML错误页面内容: {content[:500]}")
+                    raise Exception(f"WAF拦截: {error_msg}")
+                else:
+                    logger.error(f"收到HTML错误页面: {content[:200]}")
+                    raise Exception(f"API返回了HTML错误页面，请检查API配置")
+
+            return content
 
         except Exception as e:
             logger.error(f"LLM调用失败: {e}")

@@ -33,6 +33,10 @@ def _parse_llm_response(response: str) -> Dict:
         return json_str
 
     try:
+        # 检查是否为空响应
+        if not response or not response.strip():
+            raise ValueError("模型返回了空响应，这通常是由于API配置问题或模型兼容性问题。请检查模型设置。")
+
         # 尝试提取JSON代码块
         json_match = re.search(r"```json\s*(.*?)\s*```", response, re.DOTALL)
         if json_match:
@@ -71,12 +75,12 @@ def _parse_llm_response(response: str) -> Dict:
             import datetime
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             error_file = temp_dir / f"error_response_{timestamp}.txt"
-            error_file.write_text(response, encoding='utf-8')
+            error_file.write_text(response if response else "(空响应)", encoding='utf-8')
             logger.error(f"完整响应已保存到: {error_file}")
         except:
             pass
 
-        logger.debug(f"原始响应（前1000字符）: {response[:1000]}")
+        logger.debug(f"原始响应（前1000字符）: {response[:1000] if response else '(空响应)'}")
         raise Exception(f"解析模型响应失败: {str(e)}")
 
 
