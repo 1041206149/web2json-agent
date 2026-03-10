@@ -16,7 +16,7 @@
       "type": "array",
       "description": "List of URLs to parse",
       "editor": "json",
-      "default": [
+      "prefill": [
         "https://quotes.toscrape.com/page/1/",
         "https://quotes.toscrape.com/page/2/"
       ]
