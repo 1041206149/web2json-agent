@@ -36,6 +36,34 @@
       "default": 1,
       "minimum": 1,
       "maximum": 10
+    },
+    "schemaMode": {
+      "title": "Schema Mode",
+      "type": "string",
+      "description": "Schema extraction mode: auto = automatically extract fields, predefined = use custom schema template",
+      "default": "auto",
+      "enum": ["auto", "predefined"],
+      "editor": "select"
+    },
+    "predefinedSchema": {
+      "title": "Predefined Schema",
+      "type": "object",
+      "description": "Custom schema template (only used when Schema Mode is 'predefined'). Example: {\"title\": {\"type\": \"string\", \"description\": \"Product title\"}}",
+      "editor": "json",
+      "prefill": {
+        "title": {
+          "type": "string",
+          "description": "Title of the item",
+          "value_sample": "",
+          "xpaths": [""]
+        },
+        "price": {
+          "type": "string",
+          "description": "Price of the item",
+          "value_sample": "",
+          "xpaths": [""]
+        }
+      }
     }
   },
   "required": ["urls"]
